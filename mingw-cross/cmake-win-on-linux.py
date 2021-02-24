@@ -252,7 +252,7 @@ else:
     ompflag = "off"
 
 print("Configuring build with CMake")
-cmd = "mingw%s-cmake -G Ninja -D CMAKE_BUILD_TYPE=Release" % bitflag
+cmd = "mingw%s-cmake -D CMAKE_BUILD_TYPE=Release" % bitflag
 cmd += " -D ADD_PKG_CONFIG_PATH=%s/mingw%s-pkgconfig" % (homedir,bitflag)
 cmd += " -C %s/mingw%s-pkgconfig/addpkg.cmake" % (homedir,bitflag)
 cmd += " -C %s/cmake/presets/mingw-cross.cmake %s/cmake" % (gitdir,gitdir)
@@ -265,7 +265,7 @@ txt = system(cmd)
 if verbose: print(txt)
 
 print("Compiling")
-system("ninja")
+system("mingw%s-make" % bitflag)
 print("Done")
 
 print("Building PDF manual")
@@ -298,7 +298,7 @@ shutil.copy(os.path.join(gitdir,"doc","src","PDF","SMD_LAMMPS_userguide.pdf"),os
 shutil.copy(os.path.join(gitdir,"doc","src","PDF","USER-CGDNA.pdf"),os.path.join(builddir,"CGDNA-Manual.pdf"))
 
 # prune outdated inputs, too large files, or examples of packages we don't bundle
-for d in ['accelerate','kim','mscg','USER/quip','USER/vtk']:
+for d in ['accelerate','mscg','USER/quip','USER/vtk']:
     shutil.rmtree(os.path.join("examples",d),True)
 for d in ['FERMI','KEPLER']:
     shutil.rmtree(os.path.join("bench",d),True)
@@ -323,6 +323,7 @@ print("Done")
 
 print("Configuring and building installer")
 os.chdir(builddir)
+shutil.move("kim_build-prefix/bin/libkim-api.dll",builddir)
 if adminflag:
     nsisfile = os.path.join(homedir,"installer","lammps-admin.nsis")
 else:
